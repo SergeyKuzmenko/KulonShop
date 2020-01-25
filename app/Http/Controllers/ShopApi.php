@@ -19,6 +19,7 @@ class ShopApi extends Controller {
       'timestamp' => $carbon->now()->format('d.m.Y') . ' ' . $carbon->now()->format('H:i:s'),
       'ip' => $request->ip(),
       'location' => $this->getLocation($request->ip()),
+      'state' => 0
     ];
 
     if ($data['form'] !== null && $data['name'] !== null && $data['phone'] !== null) {

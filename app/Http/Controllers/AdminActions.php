@@ -10,9 +10,8 @@ class AdminActions extends Controller {
     # code...
   }
 
-  public function getOptions()
-  {
-  	$reader = CsvReader::open('storage/app/options.csv');
+  public function getOptions() {
+    $reader = CsvReader::open('storage/app/options.csv');
     $allLines = $reader->readAll();
     $allOptions = [];
     foreach ($allLines as $key => $value) {
@@ -21,32 +20,30 @@ class AdminActions extends Controller {
         'description' => $value[1],
         'percent' => $value[2],
         'old_price' => $value[3],
-        'new_price' => $value[4]
+        'new_price' => $value[4],
       ]);
     }
     return response()->json($allOptions);
   }
 
-  public function saveOptions(Request $request)
-  {
-  	$data = $request->all();
-  	if ($data) {
-  		unset($data['_token']);
-  		
-  		$writer = CsvWriter::create('storage/app/options.csv');
-  		$writer->writeLine($data);
-  		$writer->close();
+  public function saveOptions(Request $request) {
+    $data = $request->all();
+    if ($data) {
+      unset($data['_token']);
 
-  		return response()->json([
+      $writer = CsvWriter::create('storage/app/options.csv');
+      $writer->writeLine($data);
+      $writer->close();
+
+      return response()->json([
         'response' => true,
-        'data' => $data
+        'data' => $data,
       ]);
-  	} else {
-  		return response()->json([
-        'response' => false
+    } else {
+      return response()->json([
+        'response' => false,
       ]);
-  	}
-  	
+    }
 
   }
 
@@ -63,8 +60,76 @@ class AdminActions extends Controller {
         'timestamp' => $value[3],
         'ip' => $value[4],
         'location' => $value[5],
+        'state' => $value[6],
       ]);
     }
     return response()->json($allOrders);
+  }
+
+  public function getAllOrdersAsArray() {
+    $reader = CsvReader::open('storage/app/orders.csv');
+    $allLines = $reader->readAll();
+    $allOrders = [];
+    foreach ($allLines as $key => $value) {
+      array_push($allOrders, [
+        'form' => $value[0],
+        'name' => $value[1],
+        'phone' => $value[2],
+        'timestamp' => $value[3],
+        'ip' => $value[4],
+        'location' => $value[5],
+        'state' => $value[6],
+      ]);
+    }
+    return $allOrders;
+  }
+
+  public function setOrderState(Request $request) {
+    $id = $request->input('id') - 1;
+    $action = $request->input('action');
+
+    if ($id !== null && $action !== null) {
+      $allOrders = $this->getAllOrdersAsArray();
+      switch ($action) {
+      case 'successed':
+        $allOrders[$id]['state'] = 1;
+
+        $writer = CsvWriter::create('storage/app/orders.csv');
+        $writer->writeAll($allOrders);
+        $writer->close();
+
+        return response()->json([
+          'response' => true,
+        ]);
+        break;
+      case 'canceled':
+        $allOrders[$id]['state'] = -1;
+
+        $writer = CsvWriter::create('storage/app/orders.csv');
+        $writer->writeAll($allOrders);
+        $writer->close();
+
+        return response()->json([
+          'response' => true,
+        ]);
+        break;
+
+      case 'discard':
+        $allOrders[$id]['state'] = 0;
+
+        $writer = CsvWriter::create('storage/app/orders.csv');
+        $writer->writeAll($allOrders);
+        $writer->close();
+
+        return response()->json([
+          'response' => true,
+        ]);
+        break;
+      }
+    } else {
+      return response()->json([
+        'response' => false,
+      ]);
+    }
   }
 }

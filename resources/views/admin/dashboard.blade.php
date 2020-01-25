@@ -111,7 +111,7 @@
           <!-- small card -->
           <div class="small-box bg-info">
             <div class="inner">
-              <h3 class="numberOfOrders">0</h3>
+              <h3 class="numberSuccessedOrders">0</h3>
 
               <p>Заказов</p>
             </div>
@@ -127,7 +127,7 @@
         <div class="col-lg-6 col-6">
           <div class="small-box bg-danger">
             <div class="inner">
-              <h3>0</h3>
+              <h3 class="numberAbortedOrders">0</h3>
 
               <p>Количество отказов</p>
             </div>
@@ -208,7 +208,8 @@
       dataType: 'json'
     })
     .done(function(data) {
-      $('.numberOfOrders').html(data.length);
+      $('.numberSuccessedOrders').html(data.length);
+      $('.numberAbortedOrders').html(data.filter((obj) => obj.state < 0).length);
     });
     
   });

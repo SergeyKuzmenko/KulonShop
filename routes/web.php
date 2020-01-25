@@ -44,6 +44,7 @@ Route::group(['middleware' => 'basicAuth'], function () {
       Route::get('/getOrders', 'AdminActions@getOrders');
       Route::get('/getOptions', 'AdminActions@getOptions');
       Route::post('/saveOptions', 'AdminActions@saveOptions');
+      Route::post('/setOrderState', 'AdminActions@setOrderState');
     });
   });
 });

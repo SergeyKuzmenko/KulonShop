@@ -4,13 +4,14 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Заказы</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   <link rel="shortcut icon" href="{{ asset('public/img/favicon.png') }} " type="image/png">
   <!-- Tell the browser to be responsive to screen width -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- DataTables -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css">
-  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css">  
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.3/css/responsive.bootstrap4.min.css">
   <link rel="stylesheet" href="https://cdn.datatables.net/select/1.3.1/css/select.dataTables.min.css">
   <!-- Font Awesome -->
   <link rel="stylesheet" href="{{asset('public/dashboard/plugins/fontawesome-free/css/all.min.css')}}">
@@ -22,6 +23,18 @@
   <link rel="stylesheet" href="{{asset('public/dashboard/dist/css/adminlte.min.css')}}">
   <!-- Google Font: Source Sans Pro -->
   <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <style type="text/css" media="screen">
+    .selected {
+      background: #B0BED9 !important;
+    }
+
+    tbody tr:not(.selected):hover {
+      cursor: pointer !important;
+    }
+    .flex-wrap {
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
 <body class="hold-transition sidebar-mini sidebar-collapse">
 <div class="wrapper">
@@ -178,14 +191,72 @@
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/dataTables.responsive.min.js"></script>
 <script src="https://cdn.datatables.net/responsive/2.2.3/js/responsive.bootstrap4.min.js"></script>
 <script src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.1/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.1/js/buttons.bootstrap4.min.js"></script>
+{{-- sweetalert2 --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
 <!-- AdminLTE App -->
 <script src="{{asset('public/dashboard/dist/js/adminlte.min.js')}}"></script>
 <!-- AdminLTE for demo purposes -->
 <script src="{{asset('public/dashboard/dist/js/demo.js')}}"></script>
 <!-- page script -->
 <script>
+  const Toast = Swal.mixin({
+    toast: true,
+    position: 'top',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: false
+  })
   let table = $('#orders').DataTable({
-      "select": true,
+      "select": {
+            style: 'single'
+        },
+      "dom": 'Bfrtip',
+      "buttons": [
+            {
+                text: 'Подтверждение',
+                className: 'btn btn-success',
+                action: function ( e, dt, node, config ) {
+                    if (table.rows( { selected: true } ).data()[0] !== undefined) {
+                      setOrderState(table.rows( { selected: true } ).data()[0].id, 'successed')
+                    } else {
+                      Toast.fire({
+                        icon: 'warning',
+                        title: 'Выберите строку в таблице'
+                      })
+                    }
+                }
+            },
+            {
+                text: 'По умолчанию',
+                className: 'btn btn-secondary',
+                action: function ( e, dt, node, config ) {
+                    if (table.rows( { selected: true } ).data()[0] !== undefined) {
+                      setOrderState(table.rows( { selected: true } ).data()[0].id, 'discard')
+                    } else {
+                      Toast.fire({
+                        icon: 'warning',
+                        title: 'Выберите строку в таблице'
+                      })
+                    }
+                }
+            },
+            {
+                text: 'Отказ',
+                className: 'btn btn-danger',
+                action: function ( e, dt, node, config ) {
+                  if (table.rows( { selected: true } ).data()[0] !== undefined) {
+                      setOrderState(table.rows( { selected: true } ).data()[0].id, 'canceled')
+                    } else {
+                      Toast.fire({
+                        icon: 'warning',
+                        title: 'Выберите строку в таблице'
+                      })
+                    }
+                }
+            }
+        ],
       "language": {
           "url": "https://cdn.datatables.net/plug-ins/1.10.20/i18n/Russian.json"
         },
@@ -201,36 +272,89 @@
           "dataSrc": ""
          },
         "columns": [
-          { 
+          {
             "data": "id",
             "width": "5%"
           },
-          { 
+          {
             "data": "form",
             "width": "5%"
           },
-          { 
+          {
             "data": "name",
             "width": "10%"
           },
-          { 
+          {
             "data": "phone",
             "width": "20%"
           },
-          { 
+          {
             "data": "timestamp",
             "width": "15%"
           },
-          { 
+          {
             "data": "ip",
             "width": "15%"
           },
-          { 
+          {
             "data": "location",
             "width": "30%"
           }
-      ]
+      ],
+      "createdRow": function( row, data, dataIndex){
+        if (data.state == 1) {
+            $('td', row).addClass('table-success');
+          } else if (data.state == -1) {
+            $('td', row).addClass('table-danger');
+          }
+    }
     });
+
+  function setOrderState(id, action) {
+    let query = $.ajax({
+      url: '/admin/api/setOrderState',
+      type: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+      },
+      dataType: 'json',
+      data: {id, action}
+    })
+    .done(function(r) {
+      if (r.response) {
+        if (action == 'successed') {
+          table.ajax.reload();
+          Toast.fire({
+            icon: 'success',
+            title: 'Заказ подтверждён'
+          })
+        } else if (action == 'canceled') {
+          table.ajax.reload();
+          Toast.fire({
+            icon: 'error',
+            title: 'Заказ отменен'
+          })
+        } else if(action == 'discard') {
+          table.ajax.reload();
+          Toast.fire({
+            icon: 'success',
+            title: 'Статус заказа: По умолчанию'
+          })
+        }
+      } else {
+        Toast.fire({
+        icon: 'warning',
+        title: 'При сохранении статуса заявка произошла ошибка'
+      })
+      }
+    })
+    .fail(function() {
+      Toast.fire({
+        icon: 'warning',
+        title: 'При отправке запроса на сервер произошла ошибка'
+      })
+    })
+  }
 </script>
 </body>
 </html>

@@ -230,6 +230,7 @@ return [
         'Telegram'  => Telegram\Bot\Laravel\Facades\Telegram::class,
         'CsvReader' => Wilgucki\Csv\Facades\Reader::class,
         'CsvWriter' => Wilgucki\Csv\Facades\Writer::class,
+        'HTMLMin' => HTMLMin\HTMLMin\Facades\HTMLMin::class,
 
     ],
 

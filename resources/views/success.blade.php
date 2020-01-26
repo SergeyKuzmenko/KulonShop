@@ -17,19 +17,19 @@
 </head>
 
 <body>
-    <div id="success-order" class="modal">
-        <p>
-            <center>
-                <img src="{{ asset('public/img/success.png') }}" alt="Done" style="height: auto;width: 100px;">
-            </center>
-        </p>
-        <p>
-            <center>
-                <h1>Заявка успешно отправлена</h1>
-                <p>Наш оператор свяжется с Вами в ближайшее время для подтверждения заказа</p>
-            </center>
-        </p>
-    </div>
+  <div id="success-order" class="modal">
+    <p>
+      <center>
+          <img src="{{ asset('public/img/success.png') }}" alt="Done" style="height: auto;width: 100px;">
+      </center>
+    </p>
+    <p>
+      <center>
+          <h1>Заявка успешно отправлена</h1>
+          <p>Наш оператор свяжется с Вами в ближайшее время для подтверждения заказа</p>
+      </center>
+    </p>
+  </div>
     <script>
     $(document).ready(function() {
         $('#success-order').modal({ showClose: false, clickClose: false });

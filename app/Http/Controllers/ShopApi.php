@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Telegram;
-use Wilgucki\Csv\Facades\Reader as CsvReader;
-use Wilgucki\Csv\Facades\Writer as CsvWriter;
 use \Carbon\Carbon;
 
 class ShopApi extends Controller {
@@ -19,7 +16,7 @@ class ShopApi extends Controller {
       'timestamp' => $carbon->now()->format('d.m.Y') . ' ' . $carbon->now()->format('H:i:s'),
       'ip' => $request->ip(),
       'location' => $this->getLocation($request->ip()),
-      'state' => 0
+      'state' => 0,
     ];
 
     if ($data['form'] !== null && $data['name'] !== null && $data['phone'] !== null) {
@@ -34,7 +31,7 @@ class ShopApi extends Controller {
     }
   }
 
-  public function getLocation($ip = '127.0.0.1') {
+  private function getLocation($ip = '127.0.0.1') {
     $apiKey = env('IPGEOLOCATION_KEY', false);
     $IpGeolocation = $this->getIpGeolocation($apiKey, $ip, 'ru');
     $decodedLocation = json_decode($IpGeolocation, true);
@@ -45,7 +42,6 @@ class ShopApi extends Controller {
       $location = "Неизвестно";
       return $location;
     }
-
   }
 
   private function getIpGeolocation($apiKey, $ip, $lang = 'ru') {
@@ -62,7 +58,7 @@ class ShopApi extends Controller {
     return curl_exec($cURL);
   }
 
-  public function sendMessage($data) {
+  private function sendMessage($data) {
     if (env('APP_ENV') == 'production') {
       $chatIds = ['134791860', '624549483', '510926083'];
     } else {
@@ -103,5 +99,4 @@ class ShopApi extends Controller {
     fputcsv($fp, $data);
     fclose($fp);
   }
-  
 }

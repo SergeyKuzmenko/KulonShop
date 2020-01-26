@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=480">
     <title>{{ $title }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}" />
     <meta name="description" content="{{ $description }}">
     <link rel="shortcut icon" href="{{ asset('public/img/favicon.png') }} " type="image/png">
     <link rel="stylesheet" href="{{ asset('public/css/reset.css') }}">
@@ -15,13 +16,11 @@
     <link rel="stylesheet" href="{{ asset('public/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('public/css/action-mob.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
-
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Кулон I love You на 100 языках" />
     <meta property="og:url" content="{{ url('/') }}" />
     <meta property="og:image" content="{{ asset('public/img/promo.jpg') }}" />
     <meta property="og:description" content="Уникальный кулон, который способен удивить любую представительницу прекрасного пола.  Помимо изысканного французского дизайна, кулон содержит в себе кусочек настоящего чуда.  При близком подсвечивании любым источником света, он создает удивительную световую проекцию слов &quot;Я тебя люблю&quot; на 100 языках мира, включая русский язык." />
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
 </head>
 

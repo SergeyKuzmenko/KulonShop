@@ -22,8 +22,7 @@ Route::get('/privacy', function () {
 });
 
 Route::prefix('api')->group(function () {
-  Route::get('/newOrder', 'ShopApi@newOrder');
-  Route::get('/getOrders', 'ShopApi@getOrders');
+  Route::post('/newOrder', 'ShopApi@newOrder');
 });
 
 Route::group(['middleware' => 'basicAuth'], function () {

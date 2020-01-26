@@ -6,9 +6,6 @@ use Wilgucki\Csv\Facades\Reader as CsvReader;
 use Wilgucki\Csv\Facades\Writer as CsvWriter;
 
 class AdminActions extends Controller {
-  public function index() {
-    # code...
-  }
 
   public function getOptions() {
     $reader = CsvReader::open('storage/app/options.csv');
@@ -29,22 +26,18 @@ class AdminActions extends Controller {
   public function saveOptions(Request $request) {
     $data = $request->all();
     if ($data) {
-      unset($data['_token']);
-
       $writer = CsvWriter::create('storage/app/options.csv');
       $writer->writeLine($data);
       $writer->close();
 
       return response()->json([
-        'response' => true,
-        'data' => $data,
+        'response' => true
       ]);
     } else {
       return response()->json([
-        'response' => false,
+        'response' => false
       ]);
     }
-
   }
 
   public function getOrders() {
@@ -91,38 +84,51 @@ class AdminActions extends Controller {
     if ($id !== null && $action !== null) {
       $allOrders = $this->getAllOrdersAsArray();
       switch ($action) {
+
       case 'successed':
         $allOrders[$id]['state'] = 1;
-
         $writer = CsvWriter::create('storage/app/orders.csv');
         $writer->writeAll($allOrders);
         $writer->close();
-
         return response()->json([
-          'response' => true,
+          'response' => true
         ]);
         break;
+
       case 'canceled':
         $allOrders[$id]['state'] = -1;
-
         $writer = CsvWriter::create('storage/app/orders.csv');
         $writer->writeAll($allOrders);
         $writer->close();
-
         return response()->json([
-          'response' => true,
+          'response' => true
         ]);
         break;
 
       case 'discard':
         $allOrders[$id]['state'] = 0;
-
         $writer = CsvWriter::create('storage/app/orders.csv');
         $writer->writeAll($allOrders);
         $writer->close();
-
         return response()->json([
-          'response' => true,
+          'response' => true
+        ]);
+        break;
+
+      case 'delete':
+        unset($allOrders[$id]);
+        $writer = CsvWriter::create('storage/app/orders.csv');
+        $writer->writeAll($allOrders);
+        $writer->close();
+        return response()->json([
+          'response' => true
+        ]);
+        break;
+
+      default:
+        return response()->json([
+          'response' => false,
+          'error' => 'Action not found'
         ]);
         break;
       }
